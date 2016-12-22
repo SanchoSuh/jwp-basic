@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import core.db.DataBase;
 import next.model.User;
 
-@WebServlet(value = { "/users/login", "/users/loginForm" })
+//@WebServlet(value = { "/users/login", "/users/loginForm" })
 public class LoginController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
