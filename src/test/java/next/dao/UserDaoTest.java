@@ -22,6 +22,16 @@ public class UserDaoTest {
     }
 
     @Test
+    public void insert() throws Exception {
+    	User expected = new User("userId", "password", "name", "javajigi@email.com");
+        UserDao userDao = new UserDao();
+        userDao.insert(expected);
+        User actual = userDao.findByUserId(expected.getUserId());
+        assertEquals(expected, actual);
+    }
+    
+    /*
+    @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
@@ -35,10 +45,12 @@ public class UserDaoTest {
         assertEquals(expected, actual);
     }
 
+    */
     @Test
     public void findAll() throws Exception {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertEquals(1, users.size());
     }
+    
 }
