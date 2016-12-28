@@ -30,7 +30,6 @@ public class UserDaoTest {
         assertEquals(expected, actual);
     }
     
-    /*
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
@@ -45,7 +44,7 @@ public class UserDaoTest {
         assertEquals(expected, actual);
     }
 
-    */
+    
     @Test
     public void findAll() throws Exception {
         UserDao userDao = new UserDao();

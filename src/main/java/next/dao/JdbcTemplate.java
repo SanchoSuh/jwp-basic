@@ -12,32 +12,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import core.jdbc.ConnectionManager;
-import next.controller.CreateUserController;
 import next.model.User;
 
-public abstract class SelectJdbcTemplate {
-	private static final Logger log = LoggerFactory.getLogger(SelectJdbcTemplate.class);
+public abstract class JdbcTemplate {
+	private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 	
-	public User findByUserId(String userId) throws SQLException {
+	abstract void setQueryParameter(PreparedStatement pstmt) throws SQLException;
+	
+	public void update(String sql) throws SQLException {
 		Connection con = null;
 		PreparedStatement pstmt = null;		
-		ResultSet rs = null;
 		
 		try {
 			con = ConnectionManager.getConnection();
-			String sql = createFindUserQuery();
-	        pstmt = con.prepareStatement(sql);
-	        pstmt.setString(1, userId);
+			pstmt  = con.prepareStatement(sql);
+			setQueryParameter(pstmt);
 
-	        rs = pstmt.executeQuery();
-	        User user = null;
-	        if (rs.next()) {
-	             user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-	                     rs.getString("email"));
-	        }
-
-	        return user;
-		}finally {
+	        pstmt.executeUpdate();
+		} finally {
 			if(con != null) {
 				con.close();
 			}
@@ -47,9 +39,36 @@ public abstract class SelectJdbcTemplate {
 		}
 	}
 
-	abstract String createFindUserQuery();
+	public <T> T findById(String sql, RowMapper<T> rm) throws SQLException {
+		Connection con = null;
+		PreparedStatement pstmt = null;		
+		ResultSet rs = null;
+		
+		try {
+			con = ConnectionManager.getConnection();
+	        pstmt = con.prepareStatement(sql);
+	        setQueryParameter(pstmt);
+	        
+	        rs = pstmt.executeQuery();
+	        
+	        T t = null;
+	        
+	        if (rs.next()) {
+	             t = rm.mapRow(rs, 0);
+	        }
+
+	        return t;
+		}finally {
+			if(con != null) 
+				con.close();
+			if(pstmt != null) 
+				pstmt.close();
+			if(rs != null) 
+				rs.close();
+		}
+	}
 	
-	public <T> List<T> findAll(RowMapper<T> rm) throws SQLException {
+	public <T> List<T> findAll(String sql, RowMapper<T> rm) throws SQLException {
 		Connection con = null;
 		PreparedStatement pstmt = null;		
 		ResultSet rs = null;
@@ -57,10 +76,11 @@ public abstract class SelectJdbcTemplate {
 		
 		try {
 			con = ConnectionManager.getConnection();
-			String sql = createSelectAllQuery();
 			log.debug(sql);
 	    	pstmt = con.prepareStatement(sql);
+	    	setQueryParameter(pstmt);
 	    	
+	    	log.debug(pstmt.toString());
 	    	rs = pstmt.executeQuery();
 	    	
 	    	while(rs.next()) {
@@ -73,11 +93,10 @@ public abstract class SelectJdbcTemplate {
 	    		con.close();
 	    	if(pstmt != null)
 	    		pstmt.close();
+	    	if(rs != null) 
+				rs.close();
 		}
 		
     	return elements; 
 	}
-
-	abstract String createSelectAllQuery();
-
 }
