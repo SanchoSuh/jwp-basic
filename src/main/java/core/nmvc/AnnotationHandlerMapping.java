@@ -23,8 +23,8 @@ import core.ref.Junit4Test;
 import core.ref.MyTest;
 
 public class AnnotationHandlerMapping {
-    private Object[] basePackage;
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
+	private Object[] basePackage;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
@@ -32,22 +32,18 @@ public class AnnotationHandlerMapping {
         this.basePackage = basePackage;
     }
 
-    public void initialize() {
-    	   	
+    public void initialize() { 	
     	Reflections reflections = new Reflections(this.basePackage);
-    	Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(Controller.class);
     	
-    	logger.debug(String.valueOf(annotated.size()));
+    	ControllerScanner controllerScanner = new ControllerScanner(reflections);
     	
-    	Map<Class<?>, Object> map = new HashMap<>();
+    	//Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(Controller.class);
+    	Set<Class<?>> annotated = controllerScanner.getControllers(Controller.class);
     		
     	try {
-	    	for(Iterator it = annotated.iterator() ; it.hasNext() ; ) {
-	    		Class clazz = (Class)it.next();
+	    	for(Iterator<Class<?>> it = annotated.iterator() ; it.hasNext() ; ) {
+	    		Class<?> clazz = (Class<?>)it.next();
 	    		clazz.newInstance();
-		    	
-	    		//map.put(key, value)
-		    	logger.debug(clazz.getName());
 		    	
 		    	Method[] methods = clazz.getDeclaredMethods();
 		    	for(Method method : methods) {
